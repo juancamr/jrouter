@@ -1,20 +1,20 @@
-package com.juancamr.route;
+package com.juancamr.router;
 
 import javax.swing.JPanel;
 
 public class LayoutPanel extends JPanel {
 
-    private JPanel content;
+    private JPanel children;
 
     public LayoutPanel() {
         super();
     }
 
-    public void setContent(JPanel content) {
-        this.content = content;
+    public void setChildren(JPanel content) {
+        this.children = content;
     }
 
-    public JPanel getContent() {
-        return content;
+    public JPanel getChildren() {
+        return children;
     }
 }

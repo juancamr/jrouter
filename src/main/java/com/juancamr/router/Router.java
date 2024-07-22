@@ -1,4 +1,4 @@
-package com.test.app.route;
+package com.juancamr.router;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -21,6 +21,7 @@ public class Router {
     private Map<String, Class<? extends JPanel>> rutasSinPersistencia = new HashMap<>();
 
     private Map<String, ArrayList<String>> relaciones = new HashMap<>();
+    private boolean useLayouts;
 
     private JFrame window;
     private static Router router;
@@ -33,7 +34,41 @@ public class Router {
         return router;
     }
 
+    public void init(int dimensions[], String packageRoute) {
+        if (dimensions.length != 2 || dimensions[0] <= 0 || dimensions[1] <= 0) {
+            System.out.println("Dimensiones invalidas");
+            System.exit(0);
+        }
+        useLayouts = false;
+        int width = dimensions[0];
+        int height = dimensions[1];
+        window = new JFrame();
+        window.setResizable(false);
+        window.setSize(width, height);
+        window.setLocationRelativeTo(null);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setLayout(new BorderLayout());
+
+        Reflections reflections = new Reflections(packageRoute, new SubTypesScanner(false));
+        Set<Class<? extends JPanel>> subTypes = reflections.getSubTypesOf(JPanel.class);
+        if (subTypes.isEmpty()) {
+            System.out.println("No se encontraron rutas");
+            return;
+        }
+        for (Class<? extends JPanel> clazz : subTypes) {
+            String path = clazz.getAnnotation(Route.class).value();
+            if (path.contains("*")) {
+                path = path.replace("*", "");
+                rutasSinPersistencia.put(path, clazz);
+            } else {
+                routesClasses.put(path, clazz);
+            }
+        }
+
+    }
+
     public void init(int dimensions[], String packageRoute, String packageLayout) {
+        useLayouts = true;
         int width = dimensions[0];
         int height = dimensions[1];
         window = new JFrame();
@@ -82,6 +117,10 @@ public class Router {
     }
 
     public void destroyLayout(String layout) {
+        if (!useLayouts) {
+            System.out.println("El router no esta usando layouts");
+            return;
+        }
         LayoutPanel layoutPanel = layouts.get(layout);
         if (layoutPanel != null) {
             layouts.remove(layout);
@@ -89,9 +128,18 @@ public class Router {
     }
 
     public void go(String route) {
-        JPanel[] components = findPanelAndLayout(route);
-        JPanel panel = components[0];
-        LayoutPanel layout = (LayoutPanel) components[1];
+        JPanel panel = null;
+        LayoutPanel layout = null;
+        if (useLayouts) {
+            JPanel[] components = findPanelAndLayout(route);
+            panel = components[0];
+            layout = (LayoutPanel) components[1];
+        } else {
+            panel = routes.get(route);
+            if (panel == null) {
+                panel = validarPanel(route);
+            }
+        }
 
         if (layout == null) {
             window.getContentPane().removeAll();
@@ -102,8 +150,8 @@ public class Router {
             return;
         }
 
-        layout.getContent().removeAll();
-        layout.getContent().add(panel, BorderLayout.CENTER);
+        layout.getChildren().removeAll();
+        layout.getChildren().add(panel, BorderLayout.CENTER);
         layout.revalidate();
         layout.repaint();
 
@@ -119,10 +167,29 @@ public class Router {
         }
     }
 
+    private JPanel validarPanel(String route) {
+        JPanel panel = null;
+        try {
+            if (routesClasses.get(route) != null) {
+                panel = routesClasses.get(route).getConstructor().newInstance();
+                routes.put(route, panel);
+                return panel;
+            } else {
+                panel = rutasSinPersistencia.get(route).getConstructor().newInstance();
+                return panel;
+            }
+        } catch (Exception error) {
+            System.out.println(
+                    String.format("Error al crear la ruta %s, verifica que no exista errores en la clase", route));
+            System.out.println(error);
+            return null;
+        }
+    }
+
     private JPanel[] findPanelAndLayout(String route) {
         ArrayList<String> rComponents = relaciones.get(route);
         if (rComponents == null) {
-            System.out.println("La ruta \"" + route + "\" no existe");
+            System.out.println(String.format("La ruta \"%s\" no existe", route));
             System.exit(0);
         }
 
@@ -130,17 +197,7 @@ public class Router {
         LayoutPanel layout = layouts.get(rComponents.get(1));
 
         if (panel == null) {
-            try {
-                if (routesClasses.get(rComponents.get(0)) == null) {
-                    panel = rutasSinPersistencia.get(rComponents.get(0)).getConstructor().newInstance();
-                } else {
-                    panel = routesClasses.get(rComponents.get(0)).getConstructor().newInstance();
-                    routes.put(route, panel);
-                }
-            } catch (Exception error) {
-                System.out.println("Error al crear la ruta " + route);
-                System.out.println(error);
-            }
+            panel = validarPanel(rComponents.get(0));
         }
 
         if (layout == null) {

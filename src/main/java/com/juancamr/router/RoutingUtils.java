@@ -1,5 +1,6 @@
-package com.juancamr.route;
+package com.juancamr.router;
 
+import java.awt.BorderLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
@@ -9,70 +10,51 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 public class RoutingUtils {
-
-
-    public static Map<String, Object> openDialog(JFrame parent, DialogPanel dialogPanel) {
-        try {
-            CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
+    
+    public static void openDialog(Class<? extends DialogPanel> dialogClass,
+            DialogPanel.UseDataFromDialog fn) {
+        JFrame parent = null;
             JDialog dialog = new JDialog(parent, "Modal", true);
-            dialogPanel.getButtonAction().addActionListener(e -> {
-                Map<String, Object> respuesta = new HashMap<>();
-                respuesta = dialogPanel.getOnAction().apply(respuesta);
-                future.complete(respuesta);
-                dialog.dispose();
-            });
-
-            dialog.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    if (!future.isDone()) {
-                        future.complete(null);
+            try {
+                DialogPanel dialogPanel = dialogClass.getConstructor().newInstance();
+                dialogPanel.getButtonAction().addActionListener(e -> {
+                    Map<String, Object> respuesta = new HashMap<>();
+                    respuesta = dialogPanel.getOnAction().apply(respuesta);
+                    dialog.dispose();
+                    if (respuesta != null) {
+                        fn.apply(respuesta);
                     }
-                }
-            });
+                });
 
-            dialog.add(dialogPanel);
-            dialog.pack();
-            dialog.setLocationRelativeTo(null);
-            dialog.setVisible(true);
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        }
+                dialog.add(dialogPanel);
+                dialog.pack();
+                dialog.setLocationRelativeTo(null);
+                dialog.setVisible(true);
+            } catch (Exception e) {
+                System.out.println(e);
+            }
     }
 
-    public static Map<String, Object> openDialog(DialogPanel dialogPanel) {
-        try {
-            CompletableFuture<Map<String, Object>> future = new CompletableFuture<>();
-            JDialog dialog = new JDialog(Router.getInstance().getMainWindow(), "Modal", true);
-            dialogPanel.getButtonAction().addActionListener(e -> {
-                Map<String, Object> respuesta = new HashMap<>();
-                respuesta = dialogPanel.getOnAction().apply(respuesta);
-                future.complete(respuesta);
-                dialog.dispose();
-            });
+    public static void whileLoading(Runnable function) {
+        JFrame frame = null;
+        JDialog loadingDialog = new JDialog(frame, "Cargando", true);
+        JLabel loadingLabel = new JLabel("Cargando, por favor espere...");
+        loadingLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        loadingDialog.getContentPane().add(loadingLabel, BorderLayout.CENTER);
+        loadingDialog.setSize(200, 100);
+        loadingDialog.setLocationRelativeTo(frame);
 
-            dialog.addWindowListener(new WindowAdapter() {
-                @Override
-                public void windowClosing(WindowEvent e) {
-                    if (!future.isDone()) {
-                        future.complete(null);
-                    }
-                }
-            });
-
-            dialog.add(dialogPanel);
-            dialog.pack();
-            dialog.setLocationRelativeTo(null);
-            dialog.setVisible(true);
-            return future.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-            return null;
-        }
+        new Thread(() -> {
+            SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
+            function.run();
+            SwingUtilities.invokeLater(loadingDialog::dispose);
+        }).start();
     }
+
 }
