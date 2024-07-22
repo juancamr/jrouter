@@ -61,6 +61,23 @@ Router.getInstance().init(dimensiones, packageRoute); // sin layouts
 Router.getInstance().init(dimensiones, packageRoute, packageLayout); // con layouts
 ```
 
+### Layouts
+
+Para definir un layout o panel padre, utiliza la anotación @Layout y hereda de la clase LayoutPanel.
+Luego, utiliza el método setChildren() para establecer el panel hijo (paneles que cambiaran).
+Considera que el constructor de tu panel no reciba parámetros.
+
+```java
+@Layout("milayout")
+public class MainLayout extends LayoutPanel {
+
+    public MainLayout() {
+        initComponents();
+        setChildren(panelHijo) // el panel hijo debió haber sido creado previamente
+    }
+}
+```
+
 ### Rutas
 
 Para definir una ruta, utiliza la anotación @Route en la clase de tu panel.
@@ -73,21 +90,25 @@ public class HomePanel extends JPanel {
 }
 ```
 
-### Layouts
-
-Para definir un layout o panel padre, utiliza la anotación @Layout y hereda de la clase LayoutPanel.
-Luego, utiliza el método setChildren() para establecer el panel hijo (paneles que cambiaran).
-Considera que el constructor de tu panel no reciba parámetros.
+Como mencioné anteriormente, los layouts son opcionales, pero en caso los estes utilizando en tu proyecto debes definirlo en la ruta separado de ':'.
 
 ```java
-@Layout("main")
-public class MainLayout extends LayoutPanel {
+@Route("milayout:home")
+```
 
-    public MainLayout() {
-        initComponents();
-        setChildren()
-    }
-}
+Por defecto, el router es pesistente, lo que significa que si el panel al que estás navegando ya existe, no se creará nuevamente.
+Si no es el comportamiento que deseas, puedes colocar el caracter '*' al final de la ruta, de esta manera, el panel se renderizará cada vez que navegues a él.
+
+```java
+@Route("milayout:home*")
+```
+
+### Navegación
+
+Para navegar a una vista, utiliza el método go() de la clase Router.
+
+```java
+Router.getInstance().go("home");
 ```
 
 ## Dependencias
