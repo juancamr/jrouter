@@ -132,4 +132,4 @@ Este proyecto utiliza la biblioteca Reflections, que está licenciada bajo la [A
 ¡Las contribuciones son bienvenidas! Si encuentras algún problema o tienes una mejora para el proyecto, no dudes en abrir un issue o enviar un pull request.
 Licencia
 
-Este proyecto está bajo la Licencia MIT. Consulta el archivo LICENSE para más detalles.
+Este proyecto está bajo la Licencia Apache. Consulta el archivo LICENSE para más detalles.
