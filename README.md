@@ -56,9 +56,16 @@ String packageLayout = "com.tuprograma.app.view.layouts"; // opcional
 Inicialización del router:
 
 ```java
-Router.getInstance().init(dimensiones, packageRoute); // sin layouts
-// o
-Router.getInstance().init(dimensiones, packageRoute, packageLayout); // con layouts
+import com.juancamr.jrouter.Router;
+
+public class Main {
+
+    public static void main(String[] args) {
+	Router.getInstance().init(dimensiones, packageRoute); // sin layouts
+	// o
+	Router.getInstance().init(dimensiones, packageRoute, packageLayout); // con layouts
+    }
+}
 ```
 
 ### Layouts
@@ -68,6 +75,9 @@ Luego, utiliza el método setChildren() para establecer el panel hijo (paneles q
 Considera que el constructor de tu panel no reciba parámetros.
 
 ```java
+import com.juancamr.jrouter.Layout;
+import com.juancamr.jrouter.LayoutPanel;
+
 @Layout("milayout")
 public class MainLayout extends LayoutPanel {
 
@@ -84,6 +94,8 @@ Para definir una ruta, utiliza la anotación @Route en la clase de tu panel.
 Considera que el constructor de tu panel no reciba parámetros.
 
 ```java
+import com.juancamr.jrouter.Route;
+
 @Route("home")
 public class HomePanel extends JPanel {
     // tu código aquí
