@@ -1,4 +1,4 @@
-package com.juancamr.router;
+package com.juancamr.jrouter;
 
 import java.util.Map;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class Router {
         Set<Class<? extends JPanel>> subTypes = reflections.getSubTypesOf(JPanel.class);
         if (subTypes.isEmpty()) {
             System.out.println("No se encontraron rutas");
-            return;
+            System.exit(0);
         }
         for (Class<? extends JPanel> clazz : subTypes) {
             String path = clazz.getAnnotation(Route.class).value();
@@ -93,7 +93,7 @@ public class Router {
         Set<Class<? extends JPanel>> subTypes = reflections.getSubTypesOf(JPanel.class);
         if (subTypes.isEmpty()) {
             System.out.println("No se encontraron rutas");
-            return;
+            System.exit(0);
         }
         for (Class<? extends JPanel> clazz : subTypes) {
             String path = clazz.getAnnotation(Route.class).value();

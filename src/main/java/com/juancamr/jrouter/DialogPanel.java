@@ -1,4 +1,4 @@
-package com.juancamr.router;
+package com.juancamr.jrouter;
 
 import java.util.Map;
 
