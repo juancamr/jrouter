@@ -11,6 +11,8 @@ Configuración Sencilla: Ofrece una configuración fácil y rápida para integra
 
 ## Instalación
 
+### Maven
+
 Agrega el repositorio de JitPack y la dependencia a tu archivo pom.xml:
 
 ```xml
@@ -25,13 +27,17 @@ Agrega el repositorio de JitPack y la dependencia a tu archivo pom.xml:
     <!-- tus dependencias aquí -->
 
     <!-- jrouter -->
-	<dependency>
-	    <groupId>com.github.juancamr</groupId>
-	    <artifactId>jrouter</artifactId>
-	    <version>1.0</version>
-	</dependency>
+    <dependency>
+	<groupId>com.github.juancamr</groupId>
+	<artifactId>jrouter</artifactId>
+	<version>1.0</version>
+    </dependency>
 </dependencies>
 ```
+
+### Ant
+
+Obten el JAR de la [versión 1.0 de jRouter](https://github.com/juancamr/jrouter/releases/tag/1.0)
 
 ## Uso
 
